@@ -1,7 +1,9 @@
 ###################### Homologación municipios ###############################
 
 # Librerías necesarias
+install.packages("pacman")
 library(pacman)
+library(dplyr)
 p_load(readr, tidyverse, stringdist, fuzzyjoin)
 
 # Cargar datos desde la nube para que no tengan que descarlos manualmente en su lap
@@ -84,3 +86,19 @@ canjes <- canjes %>%
 
 
 ##### Aquí empiecen a hacer la homologación de municipios:
+
+canjes_clean <- canjes %>%
+        mutate(
+                MUNICIPIO = str_to_title(str_remove(MUNICIPIO, ",\\s*[A-Z.]+$")) # Remove state, capitalize
+        ) 
+
+
+canjes_clean <- canjes_clean %>%
+        left_join(
+                catálogo %>% select(CVE_MUN, NOM_MUN, NOM_ENT) %>% distinct(),
+                by = c("ESTADO" = "NOM_ENT", "MUNICIPIO" = "NOM_MUN")
+        )
+
+canjes_clean <- canjes_clean %>%
+        select(`FECHA EVENTO`, ESTADO, CVE_ENT, MUNICIPIO, CVE_MUN, everything())
+
