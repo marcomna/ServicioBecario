@@ -102,3 +102,18 @@ canjes_clean <- canjes_clean %>%
 canjes_clean <- canjes_clean %>%
         select(`FECHA EVENTO`, ESTADO, CVE_ENT, MUNICIPIO, CVE_MUN, everything())
 
+##############################################################################
+
+# Con el siguiente código, podemos ver si hay observaciones en donde no se haya encontrado la CVE_MUN
+# Como pueden ver, son más de 10000 observaciones con errores.
+no_encontrados <- canjes_clean %>% 
+  filter(is.na(CVE_MUN))
+
+# Lo siguiente muestra la frecuencia de observaciones en donde hay NA en CVE_MUN
+no_encontrados_frec <- canjes_clean %>%
+  filter(is.na(CVE_MUN)) %>%
+  count(MUNICIPIO, name = "frecuencia") %>%
+  arrange(desc(frecuencia))
+
+############## SIGAN LIMPIANDO USTEDES ###########
+
