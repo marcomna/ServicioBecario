@@ -73,3 +73,5 @@ agebs <- st_read(shp_file[1])
 
 # Mostrar un resumen del shapefile cargado
 print(agebs)
+
+
