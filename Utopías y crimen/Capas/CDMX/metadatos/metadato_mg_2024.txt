@@ -1,0 +1,31 @@
+Identifier:  
+
+Title: Marco Geoestadístico 2024.
+
+Description: El Marco Geoestadístico 2024, en su versión por área geoestadística estatal (AGEE), es un sistema que incluye información vectorial, tablas de atributos y catálogos de cada una de las áreas geoestadísticas estatales.
+
+Su cobertura es la parte del Territorio Nacional que corresponde, para cada entidad federativa, a la superficie continental y aquellas islas marítimas que tienen o tuvieron alguna unidad de observación de interés para el Marco Geoestadístico (MG). Representa dicha cobertura en niveles sucesivos de desagregación, denominados áreas geoestadísticas. Éstas, a su vez, están definidas por delimitaciones geoestadísticas, que se establecen con base en la normatividad específica del MG y de conformidad con los principios con los que fueron generadas; se apegan a los límites político-administrativos cuando éstos cumplen con los criterios técnicos del MG, pues para la definición de áreas geoestadísticas se da prioridad a la conformación de polígonos bien definidos, con límites claramente identificables y cuidando la continuidad espacial, aspectos que no siempre se cumplen en la delimitación político-administrativa del país, por lo que el MG ha establecido criterios y lineamientos para diseñar soluciones técnicas que den a las áreas geoestadísticas la congruencia necesaria.
+
+Las delimitaciones del Marco Geoestadístico en su versión por AGEE se definen con el propósito específico de referenciar geográficamente la información de censos y encuestas del INEGI, y en ningún caso o uso que se le dé a este producto se le debe asumir como fuente oficial de la división político-administrativa del país.
+
+Modified: 2024-08-31
+
+Publisher: Instituto Nacional de Estadística y Geografía, INEGI.
+
+Mbox: atencion.usuarios@inegi.org.mx
+
+License: Términos de Libre Uso de la Información del INEGI https://www.inegi.org.mx/inegi/terminos.html
+
+DataDictionary: 
+
+Keyword: “AGEB Área Geoestadística Básica”, “AGEE Área Geoestadística Estatal”, “AGEM Área Geoestadística Municipal”, “Caserío Disperso”, “Ejes de Vialidad”, “Frentes de Manzana”, “Integración Territorial”, “Límite Geoestadístico”, “Límite Político Administrativo”, “Localidad Amanzanada”, “Localidad Rural Puntual”, “Manzana”, “Polígono Externo”, “Polígono Externo de Manzana”, “Servicio Tipo Área”, “Servicio Tipo Línea”, “Servicio Tipo Punto”
+
+ContactPoint: Mtro. J. Armando Aguiar Rodríguez, 800 111 4634.
+
+Temporal: 2023-08-31-2024-08-31
+
+Spatial: Estados Unidos Mexicanos.
+
+AccrualPeriodicity: Irregular.
+
+Distribution: https://www.inegi.org.mx/temas/mg/#descargas
