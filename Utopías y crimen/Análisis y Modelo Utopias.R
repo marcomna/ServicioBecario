@@ -51,3 +51,25 @@ utopias <- st_read(shp_file)
 
 # Verificamos que se haya cargado correctamente
 print(utopias)
+
+###### AGEBs
+
+# URL del archivo zip en GitHub (versión raw)
+url_zip <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Utop%C3%ADas%20y%20crimen/Capas/CDMX/conjunto_de_datos/09a.zip"
+
+# Crear un archivo temporal para descargar el zip
+temp_file <- tempfile(fileext = ".zip")
+download.file(url_zip, temp_file, mode = "wb")
+
+# Directorio temporal para descomprimir el zip
+temp_dir <- tempdir()
+unzip(temp_file, exdir = temp_dir)
+
+# Buscar el archivo .shp dentro del directorio descomprimido
+shp_file <- list.files(temp_dir, pattern = "\\.shp$", full.names = TRUE)
+
+# Leer el shapefile (se asume que hay al menos un archivo .shp)
+agebs <- st_read(shp_file[1])
+
+# Mostrar un resumen del shapefile cargado
+print(agebs)
