@@ -51,3 +51,5 @@ utopias <- st_read(shp_file)
 
 # Verificamos que se haya cargado correctamente
 print(utopias)
+
+#prueba
