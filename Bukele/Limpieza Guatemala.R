@@ -7,6 +7,9 @@ p_load("tidyverse", "memisc", "haven", "readxl")
 ########### Cargar bases de datos de detenidos ###########
 
 # 2021
+#URL del archivo CSV
+url_2021 <- "
+
 path = file.path("C:/", "Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/", "Detenidos2021.sav")
 Detenidos2021 = read_sav(path)
 
