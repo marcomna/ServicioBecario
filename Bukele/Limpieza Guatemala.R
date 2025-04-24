@@ -1,4 +1,4 @@
-library("pacman")
+library(pacman)
 library(dplyr)
 library(stringr)
 library(lubridate)
@@ -35,29 +35,6 @@ Censo2018 <- read_excel(leer_desde_github(url_censo, ".xlsx"), sheet = "A1_2", s
 diccionario <- leer_desde_github(url_diccionario, ".xlsx")
 
 
-
-
-
-# 2021
-#URL del archivo CSV
-
-
-path = file.path("C:/", "Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/", "Detenidos2021.sav")
-Detenidos2021 = read_sav(path)
-
-# 2022
-Detenidos2022 <- read_excel("C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/Detenidos2022.xlsx")
-
-# 2023
-Detenidos2023 <- read_excel("C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/Detenidos2023.xlsx")
-
-# 2024
-Detenidos2024 <- read_excel("C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/Detenidos1T2024.xlsx")
-
-# Población
-Censo2018 <- read_excel("C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/Censo2018.xlsx", 
-                        sheet = "A1_2", skip = 4)
-
 ################### Pegar bases #######################
 
 # Función para convertir todas las variables a character y agregar el año
@@ -74,8 +51,7 @@ Detenidos2023 <- convertir_y_agregar_año(Detenidos2023, 2023)
 Detenidos2024 <- convertir_y_agregar_año(Detenidos2024, 2024)
 
 
-######## Homologación códigos ##########
-diccionario <- read_excel("C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Bases Guatemala/Diccionario Datos.xlsx")
+######## Homologación de códigos con base "Diccionario"##########
 
 #Renombrar las columnas para que sean más fáciles de manejar
 colnames(diccionario) <- c("variable", "codigo", "etiqueta")
@@ -257,24 +233,20 @@ delitos_grupo <- delitos_grupo %>%
 
 ####GRÁFICAS DE GUATEMALA####
 ###POR SUBTIPO DE DELITO###
-#Definir la carpeta de salida para las imágenes
-ruta_carpeta <- "C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Img_Delitos_Guatemala"
+# Definir la carpeta de salida RELATIVA al repositorio local
+ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
 
-# Crear la carpeta si no existe
-if (!dir.exists(ruta_carpeta)) {
-  dir.create(ruta_carpeta)
-}
 
 # Definir la fecha de la línea de tratamiento
 fecha_tratamiento <- as.Date("2022-03-01")
 
 # Generar y guardar una gráfica por cada subtipo de delito
 delitos_subtipo %>%
-  split(.$delito_com) %>%  # Separar la base por subtipo de delito
+  split(.$delito_sub) %>%  # Separar la base por subtipo de delito
   walk(function(df) {
     
     # Extraer el nombre del delito para el título y el archivo
-    nombre_delito <- unique(df$delito_com)
+    nombre_delito <- unique(df$delito_sub)
     nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
     
     # Calcular la media de incidencia antes y después de 2022
@@ -285,18 +257,18 @@ delitos_subtipo %>%
     fecha_min <- min(df$fecha, na.rm = TRUE)
     fecha_max <- max(df$fecha, na.rm = TRUE)
     
-    # Crear la gráfica con fondo blanco y color #3943B7
+    # Crear la gráfica
     p <- ggplot(df, aes(x = fecha, y = incidencia)) +
-      geom_line(color = "#3943B7", linewidth = 1) +  # Línea de incidencia en color solicitado
-      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) + # Línea punteada negra
+      geom_line(color = "#3943B7", linewidth = 1) +
+      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) +
       geom_segment(aes(x = fecha_min, xend = fecha_tratamiento, y = media_antes_2022, yend = media_antes_2022), 
-                   color = "red", linetype = "dotted", linewidth = 1) +  # Línea roja SOLO antes de 2022-03-01
+                   color = "red", linetype = "dotted", linewidth = 1) +
       geom_segment(aes(x = fecha_tratamiento, xend = fecha_max, y = media_despues_2022, yend = media_despues_2022), 
-                   color = "blue", linetype = "dotted", linewidth = 1) +  # Línea azul SOLO después de 2022-03-01
+                   color = "blue", linetype = "dotted", linewidth = 1) +
       theme_minimal(base_size = 14) +
       theme(
-        panel.background = element_rect(fill = "white", color = "white"), # Fondo blanco
-        plot.background = element_rect(fill = "white", color = "white")   # Fondo blanco general
+        panel.background = element_rect(fill = "white", color = "white"),
+        plot.background = element_rect(fill = "white", color = "white")
       ) +
       labs(
         title = paste("Incidencia Delictiva en Guatemala, Subtipo:", nombre_delito),
@@ -310,57 +282,50 @@ delitos_subtipo %>%
 
 
 
-###POR GRUPO DE DELITO###
-# Definir la carpeta de salida para las imágenes
-ruta_carpeta <- "C:/Users/pipeg/OneDrive/Escritorio/Investigación Marco/Bukele/Img_GRUPO_Delitos_Guatemala"
 
-# Crear la carpeta si no existe
-if (!dir.exists(ruta_carpeta)) {
-  dir.create(ruta_carpeta)
-}
+###POR GRUPO DE DELITO###
+# Definir la carpeta de salida relativa al repositorio
+ruta_carpeta <- "Bukele/Imágenes/Grupo"
 
 # Definir la fecha de la línea de tratamiento
 fecha_tratamiento <- as.Date("2022-03-01")
 
-# Generar y guardar una gráfica por cada subtipo de delito
+# Generar y guardar una gráfica por cada grupo de delito
 delitos_grupo %>%
-  split(.$g_delitos) %>%  # Separar la base por subtipo de delito
+  split(.$g_delitos) %>%  # Separar la base por grupo de delito
   walk(function(df) {
     
     # Extraer el nombre del delito para el título y el archivo
     nombre_delito <- unique(df$g_delitos)
     nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
     
-    # Calcular la media de incidencia antes y después de 2022
+    # Calcular medias antes y después del tratamiento
     media_antes_2022 <- mean(df$incidencia[df$fecha < fecha_tratamiento], na.rm = TRUE)
     media_despues_2022 <- mean(df$incidencia[df$fecha >= fecha_tratamiento], na.rm = TRUE)
     
-    # Encontrar el mínimo y máximo de la fecha para cada período
+    # Mínimos y máximos de fecha para los segmentos
     fecha_min <- min(df$fecha, na.rm = TRUE)
     fecha_max <- max(df$fecha, na.rm = TRUE)
     
-    # Crear la gráfica con fondo blanco y color #3943B7
+    # Crear el gráfico
     p <- ggplot(df, aes(x = fecha, y = incidencia)) +
-      geom_line(color = "#3943B7", linewidth = 1) +  # Línea de incidencia en color solicitado
-      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) + # Línea punteada negra
+      geom_line(color = "#3943B7", linewidth = 1) +
+      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) +
       geom_segment(aes(x = fecha_min, xend = fecha_tratamiento, y = media_antes_2022, yend = media_antes_2022), 
-                   color = "red", linetype = "dotted", linewidth = 1) +  # Línea roja SOLO antes de 2022-03-01
+                   color = "red", linetype = "dotted", linewidth = 1) +
       geom_segment(aes(x = fecha_tratamiento, xend = fecha_max, y = media_despues_2022, yend = media_despues_2022), 
-                   color = "blue", linetype = "dotted", linewidth = 1) +  # Línea azul SOLO después de 2022-03-01
+                   color = "blue", linetype = "dotted", linewidth = 1) +
       theme_minimal(base_size = 14) +
       theme(
-        panel.background = element_rect(fill = "white", color = "white"), # Fondo blanco
-        plot.background = element_rect(fill = "white", color = "white")   # Fondo blanco general
+        panel.background = element_rect(fill = "white", color = "white"),
+        plot.background = element_rect(fill = "white", color = "white")
       ) +
       labs(
-        title = paste("Incidencia Delictiva en Guatemala, Grupo: ", nombre_delito),
-        x = "Fecha", 
+        title = paste("Incidencia Delictiva en Guatemala, Grupo:", nombre_delito),
+        x = "Fecha",
         y = "Delitos por cada 100,000 habitantes"
       )
     
-    # Guardar la imagen
+    # Guardar imagen
     ggsave(filename = nombre_archivo, plot = p, width = 10, height = 6, dpi = 300)
   })
-
-
-
