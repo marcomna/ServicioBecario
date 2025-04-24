@@ -1,0 +1,6 @@
+Se precisa que, a partir del 31 de enero de 2022, se incorporó la clave de identificación para el Estado de México y la ciudad de Toluca, con base en la metodología definida para la Encuesta Nacional de Ocupación y Empleo, atendiendo las resoluciones y acuerdos dictados sobre la Controversia Constitucional 78/2021 y los recursos de reclamación derivados de ella.
+
+El 4 de septiembre de 2023, se reemplazó el archivo de la tabla de datos del Sociodemográfico (SDEMT), debido a una actualización en la variable CS_P14_C.
+
+El 26 de febrero de 2024, se reemplazaron los archivos de Base de datos en las tablas Vivienda (VIVT), Hogares (HOGT) y Sociodemográfico (SDEMT), debido a que se rectificó la información del campo municipio (MUN). 
+
