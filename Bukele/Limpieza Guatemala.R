@@ -2,6 +2,7 @@ library(pacman)
 library(dplyr)
 library(stringr)
 library(lubridate)
+library(here)
 p_load("tidyverse", "memisc", "haven", "readxl")
 
 ########### Cargar bases de datos de detenidos ###########
@@ -233,9 +234,8 @@ delitos_grupo <- delitos_grupo %>%
 
 ####GRÁFICAS DE GUATEMALA####
 ###POR SUBTIPO DE DELITO###
-ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
+ruta_carpeta <- here::here("Bukele", "Imágenes", "Subgrupo")
 
-# Crear carpeta si no existe (con subdirectorios)
 if (!dir.exists(ruta_carpeta)) {
   dir.create(ruta_carpeta, recursive = TRUE)
 }
