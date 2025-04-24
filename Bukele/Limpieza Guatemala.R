@@ -233,6 +233,145 @@ delitos_grupo <- delitos_grupo %>%
 
 ####GRÁFICAS DE GUATEMALA####
 ###POR SUBTIPO DE DELITO###
+# 1. Ruta relativa al repositorio local
+ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
+
+# 2. Crear la carpeta si no existe
+if (!dir.exists(ruta_carpeta)) {
+  dir.create(ruta_carpeta, recursive = TRUE)
+}
+
+# 3. Línea de intervención
+fecha_tratamiento <- as.Date("2022-03-01")
+
+# 4. Generar y guardar una gráfica por cada subtipo de delito
+delitos_subtipo %>%
+  split(.$delito_com) %>%  # Separar la base por subtipo de delito
+  walk(function(df) {
+    
+    # Extraer el nombre del subtipo de delito
+    nombre_delito <- unique(df$delito_com)
+    
+    # Crear nombre de archivo usando el nombre del subtipo
+    nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
+    
+    # Calcular medias antes y después del tratamiento
+    media_antes_2022 <- mean(df$incidencia[df$fecha < fecha_tratamiento], na.rm = TRUE)
+    media_despues_2022 <- mean(df$incidencia[df$fecha >= fecha_tratamiento], na.rm = TRUE)
+    
+    # Rango de fechas para tramos horizontales
+    fecha_min <- min(df$fecha, na.rm = TRUE)
+    fecha_max <- max(df$fecha, na.rm = TRUE)
+    
+    # Crear gráfico
+    p <- ggplot(df, aes(x = fecha, y = incidencia)) +
+      geom_line(color = "#3943B7", linewidth = 1) +
+      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) +
+      annotate("segment", x = fecha_min, xend = fecha_tratamiento,
+               y = media_antes_2022, yend = media_antes_2022,
+               color = "red", linetype = "dotted", linewidth = 1) +
+      
+      annotate("segment", x = fecha_tratamiento, xend = fecha_max,
+               y = media_despues_2022, yend = media_despues_2022,
+               color = "blue", linetype = "dotted", linewidth = 1) +
+      theme_minimal(base_size = 14) +
+      theme(
+        panel.background = element_rect(fill = "white", color = "white"),
+        plot.background = element_rect(fill = "white", color = "white")
+      ) +
+      labs(
+        title = paste("Incidencia Delictiva en Guatemala, Subtipo:", nombre_delito),
+        x = "Fecha", 
+        y = "Delitos por cada 100,000 habitantes"
+      )
+    
+    # Guardar imagen
+    ggsave(filename = nombre_archivo, plot = p, width = 10, height = 6, dpi = 300)
+  })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 1. Ruta relativa al repositorio local
+ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
+
+# 2. Crear la carpeta si no existe
+if (!dir.exists(ruta_carpeta)) {
+  dir.create(ruta_carpeta, recursive = TRUE)
+}
+
+# 3. Línea de intervención
+fecha_tratamiento <- as.Date("2022-03-01")
+
+# 4. Generar y guardar una gráfica por cada subtipo de delito
+delitos_subtipo %>%
+  split(.$delito_sub) %>%  # Separar la base por subtipo de delito
+  walk(function(df) {
+    
+    # Extraer el nombre del subtipo de delito
+    nombre_delito <- unique(df$delito_sub)
+    
+    # Crear nombre de archivo usando el nombre del subtipo
+    nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
+    
+    # Calcular medias antes y después del tratamiento
+    media_antes_2022 <- mean(df$incidencia[df$fecha < fecha_tratamiento], na.rm = TRUE)
+    media_despues_2022 <- mean(df$incidencia[df$fecha >= fecha_tratamiento], na.rm = TRUE)
+    
+    # Rango de fechas para tramos horizontales
+    fecha_min <- min(df$fecha, na.rm = TRUE)
+    fecha_max <- max(df$fecha, na.rm = TRUE)
+    
+    # Crear gráfico
+    p <- ggplot(df, aes(x = fecha, y = incidencia)) +
+      geom_line(color = "#3943B7", linewidth = 1) +
+      geom_vline(xintercept_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Definir la carpeta de salida RELATIVA al repositorio local
 ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
 
@@ -242,11 +381,11 @@ fecha_tratamiento <- as.Date("2022-03-01")
 
 # Generar y guardar una gráfica por cada subtipo de delito
 delitos_subtipo %>%
-  split(.$delito_sub) %>%  # Separar la base por subtipo de delito
+  split(.$delito_com) %>%  # Separar la base por subtipo de delito
   walk(function(df) {
     
     # Extraer el nombre del delito para el título y el archivo
-    nombre_delito <- unique(df$delito_sub)
+    nombre_delito <- unique(df$delito_com)
     nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
     
     # Calcular la media de incidencia antes y después de 2022
