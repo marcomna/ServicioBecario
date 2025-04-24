@@ -233,46 +233,39 @@ delitos_grupo <- delitos_grupo %>%
 
 ####GRÁFICAS DE GUATEMALA####
 ###POR SUBTIPO DE DELITO###
-# 1. Ruta relativa al repositorio local
 ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
 
-# 2. Crear la carpeta si no existe
+# Crear carpeta si no existe (con subdirectorios)
 if (!dir.exists(ruta_carpeta)) {
   dir.create(ruta_carpeta, recursive = TRUE)
 }
 
-# 3. Línea de intervención
 fecha_tratamiento <- as.Date("2022-03-01")
 
-# 4. Generar y guardar una gráfica por cada subtipo de delito
 delitos_subtipo %>%
-  split(.$delito_com) %>%  # Separar la base por subtipo de delito
+  split(.$delito_com) %>%
   walk(function(df) {
     
-    # Extraer el nombre del subtipo de delito
+    if (nrow(df) < 2) return(NULL)  # Salta si hay solo un dato
+    
     nombre_delito <- unique(df$delito_com)
+    nombre_limpio <- gsub("[^A-Za-z0-9_]", "_", nombre_delito)
+    nombre_archivo <- paste0(ruta_carpeta, "/", nombre_limpio, ".png")
     
-    # Crear nombre de archivo usando el nombre del subtipo
-    nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
-    
-    # Calcular medias antes y después del tratamiento
     media_antes_2022 <- mean(df$incidencia[df$fecha < fecha_tratamiento], na.rm = TRUE)
     media_despues_2022 <- mean(df$incidencia[df$fecha >= fecha_tratamiento], na.rm = TRUE)
     
-    # Rango de fechas para tramos horizontales
+    if (is.na(media_antes_2022) || is.na(media_despues_2022)) return(NULL)
+    
     fecha_min <- min(df$fecha, na.rm = TRUE)
     fecha_max <- max(df$fecha, na.rm = TRUE)
     
-    # Crear gráfico
     p <- ggplot(df, aes(x = fecha, y = incidencia)) +
       geom_line(color = "#3943B7", linewidth = 1) +
       geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) +
-      annotate("segment", x = fecha_min, xend = fecha_tratamiento,
-               y = media_antes_2022, yend = media_antes_2022,
+      annotate("segment", x = fecha_min, xend = fecha_tratamiento, y = media_antes_2022, yend = media_antes_2022, 
                color = "red", linetype = "dotted", linewidth = 1) +
-      
-      annotate("segment", x = fecha_tratamiento, xend = fecha_max,
-               y = media_despues_2022, yend = media_despues_2022,
+      annotate("segment", x = fecha_tratamiento, xend = fecha_max, y = media_despues_2022, yend = media_despues_2022, 
                color = "blue", linetype = "dotted", linewidth = 1) +
       theme_minimal(base_size = 14) +
       theme(
@@ -285,7 +278,6 @@ delitos_subtipo %>%
         y = "Delitos por cada 100,000 habitantes"
       )
     
-    # Guardar imagen
     ggsave(filename = nombre_archivo, plot = p, width = 10, height = 6, dpi = 300)
   })
 
@@ -313,68 +305,17 @@ delitos_subtipo %>%
 
 
 
-# 1. Ruta relativa al repositorio local
+
+
+
+
+#Definir la carpeta de salida para las imágenes
 ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
 
-# 2. Crear la carpeta si no existe
+# Crear la carpeta si no existe
 if (!dir.exists(ruta_carpeta)) {
-  dir.create(ruta_carpeta, recursive = TRUE)
+  dir.create(ruta_carpeta)
 }
-
-# 3. Línea de intervención
-fecha_tratamiento <- as.Date("2022-03-01")
-
-# 4. Generar y guardar una gráfica por cada subtipo de delito
-delitos_subtipo %>%
-  split(.$delito_sub) %>%  # Separar la base por subtipo de delito
-  walk(function(df) {
-    
-    # Extraer el nombre del subtipo de delito
-    nombre_delito <- unique(df$delito_sub)
-    
-    # Crear nombre de archivo usando el nombre del subtipo
-    nombre_archivo <- paste0(ruta_carpeta, "/", gsub(" ", "_", nombre_delito), ".png")
-    
-    # Calcular medias antes y después del tratamiento
-    media_antes_2022 <- mean(df$incidencia[df$fecha < fecha_tratamiento], na.rm = TRUE)
-    media_despues_2022 <- mean(df$incidencia[df$fecha >= fecha_tratamiento], na.rm = TRUE)
-    
-    # Rango de fechas para tramos horizontales
-    fecha_min <- min(df$fecha, na.rm = TRUE)
-    fecha_max <- max(df$fecha, na.rm = TRUE)
-    
-    # Crear gráfico
-    p <- ggplot(df, aes(x = fecha, y = incidencia)) +
-      geom_line(color = "#3943B7", linewidth = 1) +
-      geom_vline(xintercept_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Definir la carpeta de salida RELATIVA al repositorio local
-ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
-
 
 # Definir la fecha de la línea de tratamiento
 fecha_tratamiento <- as.Date("2022-03-01")
@@ -396,18 +337,18 @@ delitos_subtipo %>%
     fecha_min <- min(df$fecha, na.rm = TRUE)
     fecha_max <- max(df$fecha, na.rm = TRUE)
     
-    # Crear la gráfica
+    # Crear la gráfica con fondo blanco y color #3943B7
     p <- ggplot(df, aes(x = fecha, y = incidencia)) +
-      geom_line(color = "#3943B7", linewidth = 1) +
-      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) +
+      geom_line(color = "#3943B7", linewidth = 1) +  # Línea de incidencia en color solicitado
+      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black", linewidth = 1) + # Línea punteada negra
       geom_segment(aes(x = fecha_min, xend = fecha_tratamiento, y = media_antes_2022, yend = media_antes_2022), 
-                   color = "red", linetype = "dotted", linewidth = 1) +
+                   color = "red", linetype = "dotted", linewidth = 1) +  # Línea roja SOLO antes de 2022-03-01
       geom_segment(aes(x = fecha_tratamiento, xend = fecha_max, y = media_despues_2022, yend = media_despues_2022), 
-                   color = "blue", linetype = "dotted", linewidth = 1) +
+                   color = "blue", linetype = "dotted", linewidth = 1) +  # Línea azul SOLO después de 2022-03-01
       theme_minimal(base_size = 14) +
       theme(
-        panel.background = element_rect(fill = "white", color = "white"),
-        plot.background = element_rect(fill = "white", color = "white")
+        panel.background = element_rect(fill = "white", color = "white"), # Fondo blanco
+        plot.background = element_rect(fill = "white", color = "white")   # Fondo blanco general
       ) +
       labs(
         title = paste("Incidencia Delictiva en Guatemala, Subtipo:", nombre_delito),
@@ -419,6 +360,62 @@ delitos_subtipo %>%
     ggsave(filename = nombre_archivo, plot = p, width = 10, height = 6, dpi = 300)
   })
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ruta_carpeta <- "Bukele/Imágenes/Subgrupo"
+if (!dir.exists(ruta_carpeta)) dir.create(ruta_carpeta, recursive = TRUE)
+
+fecha_tratamiento <- as.Date("2022-03-01")
+
+delitos_subtipo %>%
+  split(.$delito_com) %>%
+  walk(function(df) {
+    if (nrow(df) < 2) return()  # evitar errores con solo 1 observación
+    
+    nombre_delito <- unique(df$delito_com)
+    nombre_limpio <- gsub("[^A-Za-z0-9_]", "_", nombre_delito)
+    nombre_archivo <- paste0(ruta_carpeta, "/", nombre_limpio, ".png")
+    
+    media_antes <- mean(df$incidencia[df$fecha < fecha_tratamiento], na.rm = TRUE)
+    media_despues <- mean(df$incidencia[df$fecha >= fecha_tratamiento], na.rm = TRUE)
+    fecha_min <- min(df$fecha, na.rm = TRUE)
+    fecha_max <- max(df$fecha, na.rm = TRUE)
+    
+    p <- ggplot(df, aes(x = fecha, y = incidencia)) +
+      geom_line(color = "#3943B7", linewidth = 1) +
+      geom_vline(xintercept = as.numeric(fecha_tratamiento), linetype = "dashed", color = "black") +
+      annotate("segment", x = fecha_min, xend = fecha_tratamiento,
+               y = media_antes_2022, yend = media_antes_2022,
+               color = "red", linetype = "dotted", linewidth = 1) +
+      
+      annotate("segment", x = fecha_tratamiento, xend = fecha_max,
+               y = media_despues_2022, yend = media_despues_2022,
+               color = "blue", linetype = "dotted", linewidth = 1) +
+      labs(
+        title = paste("Incidencia Delictiva en Guatemala, Subtipo:", nombre_delito),
+        x = "Fecha", y = "Delitos por cada 100,000 habitantes"
+      ) +
+      theme_minimal()
+    
+    ggsave(nombre_archivo, plot = p, width = 10, height = 6, dpi = 300)
+  })
 
 
 
