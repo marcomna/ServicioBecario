@@ -8,7 +8,7 @@
 ########################### CARGA DE DATOS ###################################
 
 library(pacman)  # Asegúrate de tener instalada la librería pacman
-p_load(readr, tidyverse, sf, purrr)
+p_load(readr, tidyverse, sf, purrr, lubridate)
 
 ###### CARPETAS DE INVESTIGACIÓN
 
@@ -22,9 +22,9 @@ head(carpetas)
 
 # Quitamos algunas columnas innecesarias
 carpetas <- carpetas %>% 
-  select(-anio_inicio, -mes_inicio, -hora_inicio, -anio_hecho, -mes_hecho,
+ select(-mes_inicio, -hora_inicio, -anio_hecho, -mes_hecho,
          -hora_hecho, -competencia, -fiscalia, -agencia, -unidad_investigacion,
-         -colonia_hecho, -colonia_catalogo, -alcaldia_hecho, -alcaldia_catalogo,
+         -colonia_hecho, -colonia_catalogo, -alcaldia_catalogo,
          -municipio_hecho)
 
 # Droppeamos observaciones en donde latitud o longitud sean NA
@@ -136,3 +136,26 @@ carpetas_joined$geom_agebs <- map(matches, function(idx) {
   }
 })
 
+########################## Utopías-Meses ###################################
+
+carpetas$fecha_inicio <- as.Date(carpetas$fecha_inicio)
+carpetas$fecha_inicio <- floor_date(carpetas$fecha_inicio, unit = "month")
+
+iztapalapa_delitos <- carpetas %>%
+  filter(alcaldia_hecho == "IZTAPALAPA" & anio_inicio >= 2018 & anio_inicio <= 2024)
+
+conteo_delitos_fecha <- iztapalapa_delitos %>%
+  group_by(fecha_inicio, categoria_delito) %>%
+  summarise(Frecuencia = n(), .groups = 'drop') %>%
+  arrange(fecha_inicio, desc(Frecuencia))
+
+utopias$Fecha_Inau <- floor_date(utopias$Fecha_Inau, unit = "month")
+
+for (i in 1:nrow(utopias)) {
+  nombre_utopia <- utopias$Nombre[i]
+  fecha_inaug <- utopias$Fecha_Inau[i]
+  
+  nombre_columna <- paste0("IDFecha_", gsub(" ", "_", nombre_utopia))
+  
+  conteo_delitos_fecha[[nombre_columna]] <- interval(fecha_inaug, conteo_delitos_fecha$fecha_inicio) %/% months(1)
+}
