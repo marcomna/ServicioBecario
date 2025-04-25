@@ -3,7 +3,7 @@ library(dplyr)
 library(stringr)
 library(lubridate)
 library(here)
-p_load("tidyverse", "memisc", "haven", "readxl")
+p_load("tidyverse", "memisc", "haven", "readxl", "stringr", "here")
 
 ########### Cargar bases de datos de detenidos ###########
 # Función para leer desde GitHub
