@@ -7,11 +7,12 @@ p_load("tidyverse", "memisc", "haven", "readxl")
 
 ########### Cargar bases de datos de detenidos ###########
 # Función para leer desde GitHub
-leer_desde_github <- function(url, ext) {
+leer_desde_github <- function(url, ext, ...) {
   temp <- tempfile(fileext = ext)
   download.file(url, destfile = temp, mode = "wb")
+  
   if (ext == ".xlsx") {
-    return(read_excel(temp))
+    return(read_excel(temp, ...))  # Pasa los argumentos extra
   } else if (ext == ".sav") {
     return(read_sav(temp))
   } else {
@@ -19,22 +20,23 @@ leer_desde_github <- function(url, ext) {
   }
 }
 
+
 # URLs de GitHub
-url_censo <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Censo2018.xlsx"
 url_det_2021 <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Detenidos2021.sav"
 url_det_2022 <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Detenidos2022.xlsx"
 url_det_2023 <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Detenidos2023.xlsx"
 url_det_2024 <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Detenidos1T2024.xlsx"
+url_censo <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Censo2018.xlsx"
 url_diccionario <- "https://github.com/marcomna/ServicioBecario/raw/refs/heads/main/Bukele/Datos/Diccionario%20Datos.xlsx"
 
-# Leer archivos
+
+#Leer archivos
 Detenidos2021 <- leer_desde_github(url_det_2021, ".sav")
 Detenidos2022 <- leer_desde_github(url_det_2022, ".xlsx")
 Detenidos2023 <- leer_desde_github(url_det_2023, ".xlsx")
 Detenidos2024 <- leer_desde_github(url_det_2024, ".xlsx")
-Censo2018 <- read_excel(leer_desde_github(url_censo, ".xlsx"), sheet = "A1_2", skip = 4)
-diccionario <- leer_desde_github(url_diccionario, ".xlsx")
-
+Censo2018     <- leer_desde_github(url_censo, ".xlsx", sheet = "A1_2", skip = 4)
+diccionario   <- leer_desde_github(url_diccionario, ".xlsx")
 
 ################### Pegar bases #######################
 
