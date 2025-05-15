@@ -2,8 +2,7 @@
 
 # Librerías necesarias
 library(pacman)
-p_load(readr, tidyverse, stringdist, fuzzyjoin, stringr, stringi, fuzzyjoin)
-
+p_load(readr, tidyverse, stringdist, fuzzyjoin, stringr, stringi, fuzzyjoin, sf, wesanderson)
 
 # Cargar datos desde la nube para que no tengan que descarlos manualmente en su lap
 
@@ -244,7 +243,6 @@ manual_fixes <- tribble(
   #nombre correcto es ozuluama de mascarenas
   "veracruz de ignacio de la llave","ozuluama de mascare+/-as","121",
   "yucatan","quintana roo","060"
-  
 )
 
 canjes_clean <- canjes_clean %>%
@@ -255,7 +253,6 @@ canjes_clean <- canjes_clean %>%
   select(-CVE_MUN_fix)  # Clean up the extra column
 
 
-##############################################################################
 # Con el siguiente código, podemos ver si hay observaciones en donde no se haya encontrado la CVE_MUN
 no_encontrados <- canjes_clean %>% 
   filter(is.na(CVE_MUN))
@@ -266,9 +263,117 @@ no_encontrados_frec <- canjes_clean %>%
   count(ESTADO,MUNICIPIO, name = "frecuencia") %>%
   arrange(desc(frecuencia))
 
-# Honologamos mayúsculas y minúsculas
+##############################################################################
+
+### Calcular número de armas canjeadas por mes por cada 100 mil habitantes
 
 canjes_clean <- canjes_clean %>%
-  mutate(ESTADO = str_to_title(ESTADO),
-         MUNICIPIO = str_to_title(MUNICIPIO))
+  rename(TOTAL_A = TOTAL) %>% 
+  mutate(TOTAL = rowSums(across(c(TOTAL_A,CARGS,CARTS,GDAS), ~ .), na.rm = TRUE))
+
+# 1. Definir la URL y el archivo destino
+options(timeout = 600)
+url_zip   <- "https://www.inegi.org.mx/contenidos/programas/ccpv/2020/microdatos/iter/ITER_NAL_2020_csv.zip"
+zip_local <- tempfile(fileext = ".zip")
+
+# 2. Descargar el ZIP (modo binario para Windows)
+download.file(url_zip, zip_local, mode = "wb")
+
+# 3. Descomprimir en un directorio temporal
+dir_unzip <- tempdir()
+unzip(zip_local, exdir = dir_unzip)
+
+# 4. Localizar el(os) CSV dentro del ZIP
+csv_path <- list.files(dir_unzip, pattern = "ITER_NAL.*\\.csv$", full.names = TRUE)
+
+# 5. Leer el CSV en 'poblacion' (usa readr para velocidad y parseo automático)
+if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
+poblacion <- read_csv(csv_path)
+
+##### LIMPIEZA #######
+# 1) Identifica índices de POBTOT hasta el final
+cols <- which(names(poblacion)=="POBTOT"):ncol(poblacion)
+
+# 2) Para cada una, si es character, reemplaza "*" por NA
+for(i in cols) {
+  if (is.character(poblacion[[i]])) {
+    poblacion[[i]][ poblacion[[i]] == "*" ] <- NA
+  }
+}
+
+# Quitamos NAs en columna LONGITUD (porque indica que es una observación que es una suma parcial de estado, país, etc.)
+poblacion <- poblacion %>%
+  filter(!is.na(LONGITUD))
+
+#### COLAPSO DE POBLACIÓN SUMANDO POR MUN #####
+
+poblacion_agg <- poblacion %>%
+  group_by(ENTIDAD, MUN) %>% 
+  summarise(
+    POBTOT = sum(as.numeric(POBTOT), na.rm = TRUE),
+    .groups = "drop")
+
+#### Código para corroborar población por entidad federativa ####
+poblacion_agg %>%
+  filter(ENTIDAD == "09") %>% 
+  summarise(POBTOT = sum(POBTOT, na.rm = TRUE))
+
+# Agregar población a df de canjes
+
+poblacion_agg <- poblacion_agg %>%
+  rename(CVE_ENT = ENTIDAD) %>% 
+  rename(CVE_MUN = MUN)
+
+canjes_clean <- canjes_clean %>%
+  left_join(poblacion_agg, by = c("CVE_ENT", "CVE_MUN"))
+
+canjes_clean <- canjes_clean %>%
+  mutate(
+    CVE_ENT = str_pad(CVE_ENT, 2, pad = "0"),
+    CVE_MUN = str_pad(CVE_MUN, 3, pad = "0")
+  )
+
+poblacion_agg <- poblacion_agg %>%
+  mutate(
+    CVE_ENT = str_pad(CVE_ENT, 2, pad = "0"),
+    CVE_MUN = str_pad(CVE_MUN, 3, pad = "0")
+  )
+
+
+# Calcular armas canjeadas por cada 100 mil habitantes
+canjes_clean <- canjes_clean %>%
+  mutate(RATIO = (TOTAL / POBTOT) * 100000)
+
+
+##############################################################################
+
+#### Mapas
+
+# Create a continuous version of the Zissou1 palette
+pal <- colorRampPalette(wes_palette("Zissou1"))(100)
+
+mun_sf <- st_read("~/Downloads/Escuela/Carrera/Servicio Becario Marco/Conabio Data/mun22cw.shp")
+
+# Check the projection
+st_crs(mun_sf)
+
+
+# Ensure join keys are the same type
+mun_sf <- mun_sf %>%
+  mutate(CVE_ENT = as.character(CVE_ENT),
+         CVE_MUN = as.character(CVE_MUN))
+
+# Join your data
+map_data <- mun_sf %>%
+  left_join(canjes_clean, by = c("CVE_ENT", "CVE_MUN"))
+
+# Plot the firearms per 100k
+ggplot(map_data) +
+  geom_sf(aes(fill = RATIO), color = NA) +
+  scale_fill_gradientn(colors = pal, trans = "log", na.value = "grey90")+
+  theme_minimal() +
+  labs(
+    title = "Armas canjeadas por cada 100 mil habitantes",
+    fill = "Canjes / 100k"
+  )
 
